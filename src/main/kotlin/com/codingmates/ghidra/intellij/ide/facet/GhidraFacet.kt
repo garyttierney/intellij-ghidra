@@ -12,7 +12,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.*
-import com.intellij.openapi.util.use
+import com.intellij.openapi.roots.libraries.Library
 import com.intellij.util.messages.MessageBusConnection
 
 
@@ -75,24 +75,25 @@ class GhidraFacet(
     fun updateLibrary() = runWriteAction {
         val rootManager = ModuleRootManager.getInstance(module)
         val model = rootManager.modifiableModel
-        var modelChanged = false
 
         try {
             val installation = configuration.loadGhidraInstallation()
             val libraries = ModifiableModelsProvider.SERVICE.getInstance().libraryTableModifiableModel
 
-            val library = libraries.getLibraryByName(GHIDRA_LIBRARY_NAME) ?: libraries.use {
-                val newLibrary = libraries.createLibrary(GHIDRA_LIBRARY_NAME)
+            var library = libraries.getLibraryByName(GHIDRA_LIBRARY_NAME)
+            if (library == null) {
+                library = libraries.createLibrary(GHIDRA_LIBRARY_NAME)
 
-                newLibrary.modifiableModel.use { libraryModel ->
-                    installation.binaries.forEach { libraryModel.addRoot(it, OrderRootType.CLASSES) }
-                    installation.sources.forEach { libraryModel.addRoot(it, OrderRootType.SOURCES) }
+                val libraryModel = library.modifiableModel
+                installation.binaries.forEach { libraryModel.addRoot(it, OrderRootType.CLASSES) }
+                installation.sources.forEach { libraryModel.addRoot(it, OrderRootType.SOURCES) }
 
-                    libraryModel.commit()
-                }
-
+                libraryModel.commit()
                 libraries.commit()
-                newLibrary
+            }
+
+            if (!libraries.isChanged) {
+                libraries.dispose()
             }
 
             var hasLibrary = false
@@ -105,10 +106,9 @@ class GhidraFacet(
 
             if (!hasLibrary) {
                 model.addLibraryEntry(library)
-                modelChanged = true
             }
         } finally {
-            if (modelChanged) {
+            if (model.isChanged) {
                 model.commit()
             } else {
                 model.dispose()
