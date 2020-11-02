@@ -1,0 +1,21 @@
+<idea-plugin>
+    <id>org.example.intellij-plugin</id>
+    <name>Ghidra</name>
+    <vendor email="gary.tierney@fastmail.com" url="https://github.com/garyttierney/intellij-ghidra">Gary Tierney</vendor>
+
+    <description><![CDATA[Support for editing Ghidra extensions in IntelliJ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="com.codingmates.ghidra.intellij.ide.runConfiguration.GhidraLauncherConfigurationType"/>
+        <programRunner id="Run" implementation="com.codingmates.ghidra.intellij.ide.runConfiguration.GhidraLauncherRunner"/>
+        <programRunner id="Debug" implementation="com.codingmates.ghidra.intellij.ide.runConfiguration.GhidraLauncherDebugRunner"/>
+        <facetType implementation="com.codingmates.ghidra.intellij.ide.facet.GhidraFacetType" />
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+</idea-plugin>
