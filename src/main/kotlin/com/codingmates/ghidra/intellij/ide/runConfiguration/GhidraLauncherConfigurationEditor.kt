@@ -9,7 +9,10 @@ import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.LCFlags
 import com.intellij.ui.layout.panel
 import org.jetbrains.annotations.Nullable
+import javax.swing.JCheckBox
 import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JTextField
 
 
 class GhidraLauncherConfigurationEditor(project: Project) : SettingsEditor<GhidraLauncherConfiguration>(),
@@ -17,16 +20,26 @@ class GhidraLauncherConfigurationEditor(project: Project) : SettingsEditor<Ghidr
 
     private var anchorComponent: JComponent? = null
     private val jreEditor = JrePathEditor(DefaultJreSelector.projectSdk(project))
+    private val argEditor =  JTextField()
+    private val isHeadless = JCheckBox()
 
     private val configPanel = panel(LCFlags.fillX) {
         row {
             jreEditor(CCFlags.growX)
+        }
+        row("args:") {
+            argEditor(CCFlags.growX)
+        }
+        row("use headless") {
+            isHeadless()
         }
     }
 
     override fun applyEditorTo(configuration: GhidraLauncherConfiguration) {
         configuration.alternativeJrePath = jreEditor.jrePathOrName
         configuration.isAlternativeJrePathEnabled = jreEditor.isAlternativeJreSelected
+        configuration.setArgs(argEditor.getText())
+        configuration.setHeadless(isHeadless.isSelected())
         configuration.checkConfiguration()
     }
 
