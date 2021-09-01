@@ -22,8 +22,13 @@ class GhidraLauncherCommandLineState(
 
         javaParameters.jdk = JavaParametersUtil.createProjectJdk(project, jrePath)
         javaParameters.mainClass = "ghidra.GhidraLauncher"
+        if (configuration.getHeadless()) {
+            javaParameters.programParametersList.add("ghidra.app.util.headless.AnalyzeHeadless")
+            javaParameters.programParametersList.addParametersString(configuration.getArgs())
+        } else {
+            javaParameters.programParametersList.add("ghidra.GhidraRun")
+        }
         javaParameters.vmParametersList.addAll(GHIDRA_CLI_OPTS)
-        javaParameters.programParametersList.add("ghidra.GhidraRun")
         JavaParametersUtil.configureProject(
             project,
             javaParameters,

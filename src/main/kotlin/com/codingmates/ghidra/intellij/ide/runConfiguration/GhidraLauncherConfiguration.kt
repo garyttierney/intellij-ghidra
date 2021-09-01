@@ -127,6 +127,22 @@ class GhidraLauncherConfiguration(
         state.alternativeJrePathEnabled = enabled
     }
 
+    fun setArgs(args: String?){
+        state.args = args
+    }
+
+    fun setHeadless(check: Boolean) {
+        state.isHeadless = check
+    }
+
+    fun getArgs(): String?{
+        return state.args
+    }
+
+    fun getHeadless(): Boolean {
+        return state.isHeadless
+    }
+
     override fun setEnvs(envs: Map<String, String>) {
         _envs.clear()
         _envs.putAll(envs)
@@ -165,7 +181,9 @@ class GhidraLauncherConfiguration(
         var alternativeJrePathEnabled: Boolean = true,
         var passParentEnvironments: Boolean = true,
         var shortenCommandLine: ShortenCommandLine? = null,
-        var vmParameters: String = ""
+        var vmParameters: String = "",
+        var args: String? = "",
+        var isHeadless: Boolean = false,
     )
 
     init {
