@@ -26,7 +26,7 @@ dependencies {
 }
 
 intellij {
-    version = "2020.2"
+    version = "2021.2"
     pluginName = "intellij-ghidra"
 
     setPlugins("java")
