@@ -53,6 +53,8 @@ class GhidraLauncherConfigurationEditor(project: Project) : SettingsEditor<Ghidr
 
     override fun resetEditorFrom(s: GhidraLauncherConfiguration) {
         jreEditor.setPathOrName(s.alternativeJrePath, s.isAlternativeJrePathEnabled)
+        argEditor.text = s.getArgs()
+        isHeadless.isSelected = s.getHeadless()
     }
 
     override fun setAnchor(anchor: @Nullable JComponent?) {
