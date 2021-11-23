@@ -100,17 +100,6 @@ jobs:
           name: pluginVerifier-result
           path: ${{ github.workspace }}/build/reports/pluginVerifier
 
-      # Run Qodana inspections
-      - name: Qodana - Code Inspection
-        uses: JetBrains/qodana-action@v2.1-eap
-
-      # Collect Qodana Result
-      - name: Collect Qodana Result
-        uses: actions/upload-artifact@v2
-        with:
-          name: qodana-result
-          path: ${{ github.workspace }}/qodana
-
       # Prepare plugin archive content for creating artifact
       - name: Prepare Plugin Artifact
         id: artifact
@@ -129,8 +118,52 @@ jobs:
           name: ${{ steps.artifact.outputs.filename }}
           path: ./build/distributions/content/*/*
 
-  # Prepare a draft release for GitHub Releases page for the manual verification
-  # If accepted and published, release workflow would be triggered
+  codeQualityChecks:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v2.4.0
+
+      # Validate wrapper
+      - name: Gradle Wrapper Validation
+        uses: gradle/wrapper-validation-action@v1.0.4
+
+      # Setup Java 11 environment for the next steps
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: zulu
+          java-version: 11
+          cache: gradle
+
+      # Set environment variables
+      - name: Export Properties
+        id: properties
+        shell: bash
+        run: |
+          PROPERTIES="$(./gradlew properties --console=plain -q)"
+          VERSION="$(echo "$PROPERTIES" | grep "^version:" | cut -f2- -d ' ')"
+          NAME="$(echo "$PROPERTIES" | grep "^pluginName:" | cut -f2- -d ' ')"
+          CHANGELOG="$(./gradlew getChangelog --unreleased --no-header --console=plain -q)"
+          CHANGELOG="${CHANGELOG//'%'/'%25'}"
+          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=name::$NAME"
+
+      - name: Qodana - Code Inspection
+        uses: JetBrains/qodana-action@v2.1-eap
+
+      # Collect Qodana Result
+      - name: Collect Qodana Result
+        uses: actions/upload-artifact@v2
+        with:
+          name: qodana-result
+          path: ${{ github.workspace }}/qodana
+
   releaseDraft:
     name: Release Draft
     if: github.event_name != 'pull_request'
