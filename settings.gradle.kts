@@ -1,1 +1,1 @@
-rootProject.name = "intellij-plugin"
+rootProject.name = "intellij-ghidra"
