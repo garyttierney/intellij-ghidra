@@ -23,7 +23,7 @@ class GhidraFacet(
     configuration: GhidraFacetConfiguration,
     underlyingFacet: Facet<*>?
 ) : Facet<GhidraFacetConfiguration>(facetType, module, name, configuration, underlyingFacet) {
-    val connection: MessageBusConnection = module.messageBus.connect()
+    private val connection: MessageBusConnection = module.project.messageBus.connect()
 
     val installationPath
         get() = configuration.ghidraState.installationPath
