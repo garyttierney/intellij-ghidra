@@ -119,8 +119,8 @@ jobs:
           cd ${{ github.workspace }}/build/distributions
           FILENAME=`ls *.zip`
           unzip "$FILENAME" -d content
-
-          echo "::set-output name=filename::$FILENAME"
+          FOLDER_NAME=$(basename "$FILENAME" .zip)
+          echo "::set-output name=filename::$FOLDER_NAME"
 
       # Store already-built plugin as an artifact for downloading
       - name: Upload artifact
