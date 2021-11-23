@@ -1,6 +1,8 @@
 # intellij-ghidra
 
+<!-- Plugin description -->
 A plugin that extends IDEA with a Ghidra launcher run configuration.
+<!-- Plugin description end -->
 
 ## Building
 

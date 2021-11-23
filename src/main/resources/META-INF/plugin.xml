@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>org.example.intellij-plugin</id>
+    <id>com.codingmates.ghidra</id>
     <name>Ghidra</name>
     <vendor email="gary.tierney@fastmail.com" url="https://github.com/garyttierney/intellij-ghidra">Gary Tierney</vendor>
 
