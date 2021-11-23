@@ -2,10 +2,7 @@ package com.codingmates.ghidra.intellij.ide.facet
 
 
 import com.intellij.ProjectTopics
-import com.intellij.facet.Facet
-import com.intellij.facet.FacetManager
-import com.intellij.facet.FacetManagerAdapter
-import com.intellij.facet.FacetType
+import com.intellij.facet.*
 import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.Module
@@ -23,13 +20,13 @@ class GhidraFacet(
     configuration: GhidraFacetConfiguration,
     underlyingFacet: Facet<*>?
 ) : Facet<GhidraFacetConfiguration>(facetType, module, name, configuration, underlyingFacet) {
-    val connection: MessageBusConnection = module.messageBus.connect()
+    private val connection: MessageBusConnection = module.project.messageBus.connect()
 
     val installationPath
         get() = configuration.ghidraState.installationPath
 
     init {
-        connection.subscribe(FacetManager.FACETS_TOPIC, object : FacetManagerAdapter() {
+        connection.subscribe(FacetManager.FACETS_TOPIC, object : FacetManagerListener {
             override fun beforeFacetRemoved(facet: Facet<*>) {
                 removeLibrary()
             }
