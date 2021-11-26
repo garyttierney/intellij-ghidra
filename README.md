@@ -6,15 +6,12 @@ A plugin that extends IDEA with a Ghidra launcher run configuration.
 
 ## Building
 
-1. Check if your Intellij IDEA version matches the version set in `build.gradle.kts` file:
+1. Check if your Intellij IDEA version and edition matches the properties set in `gradle.properties` file:
 ```
-intellij {
-    version = "2021.2"
-    pluginName = "intellij-ghidra"
-
-    setPlugins("java")
-}
+platformType = IC
+platformVersion = 2021.2
 ```
+For the Intellij IDEA Community edition you need to keep `IC` as is, for the Ultimate edition it should become `IU`.
 
 2. Run the [Gradle](https://gradle.org) to build the plugin
 ```sh
