@@ -3,19 +3,18 @@ package com.codingmates.ghidra.intellij.ide.facet
 import com.intellij.facet.ui.FacetEditorContext
 import com.intellij.facet.ui.FacetEditorTab
 import com.intellij.facet.ui.FacetValidatorsManager
+import com.intellij.openapi.fileChooser.FileChooser
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.annotations.Nls
 import java.awt.BorderLayout
-import javax.swing.JComponent
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JTextField
+import javax.swing.*
 
 
 class GhidraFacetConfigurationEditor(
     private val state: GhidraFacetState,
-    private val _context: FacetEditorContext,
+    private val context: FacetEditorContext,
     private val _validator: FacetValidatorsManager
 ) : FacetEditorTab() {
 
@@ -25,8 +24,20 @@ class GhidraFacetConfigurationEditor(
         val top = JPanel(BorderLayout())
         top.add(JLabel("Path to Ghidra installation: "), BorderLayout.WEST)
         top.add(installationPathEditor)
+        val chooserButton = JButton("...")
+        top.add(chooserButton, BorderLayout.EAST)
         val facetPanel = JPanel(BorderLayout())
         facetPanel.add(top, BorderLayout.NORTH)
+        chooserButton.addActionListener {
+            FileChooser.chooseFile(
+                FileChooserDescriptorFactory.createSingleFolderDescriptor(),
+                context.project, null
+            ) { virtualFile ->
+                virtualFile.canonicalPath?.let { path ->
+                    installationPathEditor.text = path
+                }
+            }
+        }
         return facetPanel
     }
 
