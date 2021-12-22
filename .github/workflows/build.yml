@@ -155,7 +155,7 @@ jobs:
           echo "::set-output name=name::$NAME"
 
       - name: Qodana - Code Inspection
-        uses: JetBrains/qodana-action@v2.1-eap
+        uses: JetBrains/qodana-action@v4.1.0
 
       # Collect Qodana Result
       - name: Collect Qodana Result
