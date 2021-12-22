@@ -22,16 +22,16 @@ class GhidraFacetConfiguration : FacetConfiguration, PersistentStateComponent<Gh
     private fun searchGhidraRoots(root: Path, filter: (VirtualFile) -> Boolean): MutableList<VirtualFile> {
         val roots = mutableListOf<VirtualFile>()
         val vfs = VirtualFileManager.getInstance()
-        val vfsRoot = vfs.findFileByNioPath(root) ?: error("Installation path doesn't exist")
+        vfs.findFileByNioPath(root)?.let { vfsRoot ->
+            VfsUtil.iterateChildrenRecursively(vfsRoot, { !it.path.contains("GhidraServer/data") }) {
+                if (filter(it)) {
+                    val uri = VfsUtil.getUrlForLibraryRoot(it.toNioPath().toFile())
+                    val archiveFile = vfs.findFileByUrl(uri) ?: return@iterateChildrenRecursively true
+                    roots.add(archiveFile)
+                }
 
-        VfsUtil.iterateChildrenRecursively(vfsRoot, { !it.path.contains("GhidraServer/data") }) {
-            if (filter(it)) {
-                val uri = VfsUtil.getUrlForLibraryRoot(it.toNioPath().toFile())
-                val archiveFile = vfs.findFileByUrl(uri) ?: return@iterateChildrenRecursively true
-                roots.add(archiveFile)
+                true
             }
-
-            true
         }
 
         return roots
