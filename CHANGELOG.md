@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+- Update README for JetBrains marketplace (#13).
+
+### Fixed
+- Don't panic when searching an empty Gradle root by [agatti](https://github.com/agatti) (#11).
+
 ## [0.2.0]
 ### Added
 - Add basic support for Headless mode. by @MatthewShao in https://github.com/garyttierney/intellij-ghidra/pull/1
