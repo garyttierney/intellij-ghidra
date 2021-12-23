@@ -1,7 +1,13 @@
 # intellij-ghidra
 
 <!-- Plugin description -->
-A plugin that extends IDEA with a Ghidra launcher run configuration.
+Adds support for Ghidra extensions and scripts written in Java to IntellIJ. 
+The following additional features have been added to the IDE:
+
+- Ghidra Framework facet and global library support
+- Code Assistance from the Ghidra API
+- Run Configuration integration to launch the current extension
+
 <!-- Plugin description end -->
 
 ## Building
@@ -24,4 +30,4 @@ gradle buildPlugin
 At the moment the only functionality available is configuring the IDE with the path to Ghidra, and a custom run configuration.
 This can be set up by configuring the Ghidra facet and then creating a _Ghidra Launcher_ run configuration, as shown below.
 
-![Setup demonstration](https://github.com/garyttierney/intellij-ghidra/raw/master/media/intellij-ghidra-example.gif "Setup demonstration")
+![Setup demonstration](https://github.com/garyttierney/intellij-ghidra/raw/main/media/intellij-ghidra-example.gif "Setup demonstration")
