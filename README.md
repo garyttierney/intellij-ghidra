@@ -15,7 +15,7 @@ The following additional features have been added to the IDE:
 1. Check if your Intellij IDEA version and edition matches the properties set in `gradle.properties` file:
 ```
 platformType = IC
-platformVersion = 2021.2
+platformVersion = 2021.3.2
 ```
 For the Intellij IDEA Community edition you need to keep `IC` as is, for the Ultimate edition it should become `IU`.
 
