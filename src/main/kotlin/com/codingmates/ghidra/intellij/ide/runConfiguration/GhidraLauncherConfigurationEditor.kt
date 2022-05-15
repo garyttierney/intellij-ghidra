@@ -5,13 +5,11 @@ import com.intellij.execution.ui.JrePathEditor
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.ui.PanelWithAnchor
-import com.intellij.ui.layout.CCFlags
-import com.intellij.ui.layout.LCFlags
-import com.intellij.ui.layout.panel
+import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import org.jetbrains.annotations.Nullable
 import javax.swing.JCheckBox
 import javax.swing.JComponent
-import javax.swing.JLabel
 import javax.swing.JTextField
 
 
@@ -23,15 +21,15 @@ class GhidraLauncherConfigurationEditor(project: Project) : SettingsEditor<Ghidr
     private val argEditor =  JTextField()
     private val isHeadless = JCheckBox()
 
-    private val configPanel = panel(LCFlags.fillX) {
+    private val configPanel = panel {
         row {
-            jreEditor(CCFlags.growX)
+            cell(jreEditor).horizontalAlign(HorizontalAlign.FILL)
         }
-        row("args:") {
-            argEditor(CCFlags.growX)
+        row("Arguments") {
+            cell(argEditor).horizontalAlign(HorizontalAlign.FILL)
         }
-        row("use headless") {
-            isHeadless()
+        row("Use headless") {
+            cell(isHeadless).horizontalAlign(HorizontalAlign.FILL)
         }
     }
 

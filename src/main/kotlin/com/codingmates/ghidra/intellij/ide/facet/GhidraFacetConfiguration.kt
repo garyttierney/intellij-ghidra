@@ -53,7 +53,7 @@ class GhidraFacetConfiguration : FacetConfiguration, PersistentStateComponent<Gh
             properties.getProperty("application.version")
         )
 
-        val userDataKey = ".${version.name.toLowerCase()}_${version.version}_${version.releaseName}"
+        val userDataKey = ".${version.name.lowercase(Locale.getDefault())}_${version.version}_${version.releaseName}"
         val extensionRoot = Paths.get(System.getProperty("user.home"), ".ghidra", userDataKey, "Extensions")
         val installationRoot = Paths.get(state.installationPath)
 
