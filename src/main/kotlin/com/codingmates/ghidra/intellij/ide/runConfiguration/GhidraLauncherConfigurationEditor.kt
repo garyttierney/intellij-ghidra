@@ -11,7 +11,6 @@ import com.intellij.ui.layout.panel
 import org.jetbrains.annotations.Nullable
 import javax.swing.JCheckBox
 import javax.swing.JComponent
-import javax.swing.JLabel
 import javax.swing.JTextField
 
 
@@ -20,18 +19,18 @@ class GhidraLauncherConfigurationEditor(project: Project) : SettingsEditor<Ghidr
 
     private var anchorComponent: JComponent? = null
     private val jreEditor = JrePathEditor(DefaultJreSelector.projectSdk(project))
-    private val argEditor =  JTextField()
+    private val argEditor = JTextField()
     private val isHeadless = JCheckBox()
 
     private val configPanel = panel(LCFlags.fillX) {
         row {
             jreEditor(CCFlags.growX)
         }
-        row("args:") {
+        row("Arguments") {
             argEditor(CCFlags.growX)
         }
-        row("use headless") {
-            isHeadless()
+        row("Use headless") {
+            isHeadless
         }
     }
 

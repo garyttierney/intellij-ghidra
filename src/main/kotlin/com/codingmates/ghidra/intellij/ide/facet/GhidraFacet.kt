@@ -31,6 +31,21 @@ class GhidraFacet(
                 removeLibrary()
             }
 
+            override fun beforeFacetAdded(facet: Facet<*>) {
+            }
+
+            override fun beforeFacetRenamed(facet: Facet<*>) {
+            }
+
+            override fun facetAdded(facet: Facet<*>) {
+            }
+
+            override fun facetRemoved(facet: Facet<*>) {
+            }
+
+            override fun facetRenamed(facet: Facet<*>, oldName: String) {
+            }
+
             override fun facetConfigurationChanged(facet: Facet<*>) {
                 updateLibrary()
             }
