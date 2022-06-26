@@ -3,6 +3,10 @@
 # IntelliJ Ghidra Changelog
 
 ## [Unreleased]
+### Added
+
+- Add support for IntelliJ 2022.2 by [agatti](https://github.com/agatti) and [ekilmer](https://github.com/ekilmer) in https://github.com/garyttierney/intellij-ghidra/pull/17.
+
 
 ## [0.3.0]
 ### Changed
