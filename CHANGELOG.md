@@ -4,11 +4,8 @@
 
 ## [Unreleased]
 
+## [0.3.0]
 ### Changed
-- Update README for JetBrains marketplace (#13).
-
-### Fixed
-- Don't panic when searching an empty Gradle root by [agatti](https://github.com/agatti) (#11).
 
 ## [0.2.0]
 ### Added
