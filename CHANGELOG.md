@@ -7,6 +7,8 @@
 
 - Add support for IntelliJ 2022.2 by [agatti](https://github.com/agatti) and [ekilmer](https://github.com/ekilmer) in https://github.com/garyttierney/intellij-ghidra/pull/17.
 
+### Fixed
+- Fix headless checkbox not showing up by [ekilmer](https://github.com/ekilmer) in https://github.com/garyttierney/intellij-ghidra/pull/19
 
 ## [0.3.0]
 ### Changed
