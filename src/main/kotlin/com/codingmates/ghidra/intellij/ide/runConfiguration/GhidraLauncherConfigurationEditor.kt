@@ -30,7 +30,7 @@ class GhidraLauncherConfigurationEditor(project: Project) : SettingsEditor<Ghidr
             argEditor(CCFlags.growX)
         }
         row("Use headless") {
-            isHeadless
+            isHeadless(CCFlags.growX)
         }
     }
 
