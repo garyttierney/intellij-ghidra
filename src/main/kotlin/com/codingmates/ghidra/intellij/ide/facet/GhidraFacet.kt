@@ -59,7 +59,7 @@ class GhidraFacet(
     }
 
     override fun initFacet() {
-        updateLibrary()
+        invokeLater { updateLibrary() }
     }
 
     fun removeLibrary() = runWriteAction {
