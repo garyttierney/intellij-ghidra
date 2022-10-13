@@ -5,6 +5,7 @@ import com.intellij.execution.ui.JrePathEditor
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.ui.PanelWithAnchor
+import com.intellij.ui.components.fields.ExpandableTextField
 import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.LCFlags
 import com.intellij.ui.layout.panel
@@ -19,7 +20,7 @@ class GhidraLauncherConfigurationEditor(project: Project) : SettingsEditor<Ghidr
 
     private var anchorComponent: JComponent? = null
     private val jreEditor = JrePathEditor(DefaultJreSelector.projectSdk(project))
-    private val argEditor = JTextField()
+    private val argEditor = ExpandableTextField()
     private val isHeadless = JCheckBox()
 
     private val configPanel = panel(LCFlags.fillX) {
