@@ -9,7 +9,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.*
-import com.intellij.openapi.roots.libraries.Library
 import com.intellij.util.messages.MessageBusConnection
 
 
@@ -68,7 +67,7 @@ class GhidraFacet(
         var modelChanged = false
 
         try {
-            val libraries = ModifiableModelsProvider.SERVICE.getInstance().libraryTableModifiableModel
+            val libraries = ModifiableModelsProvider.getInstance().libraryTableModifiableModel
             val library = libraries.getLibraryByName(GHIDRA_LIBRARY_NAME)
 
             if (library != null) {
@@ -90,7 +89,7 @@ class GhidraFacet(
 
         try {
             val installation = configuration.loadGhidraInstallation()
-            val libraries = ModifiableModelsProvider.SERVICE.getInstance().libraryTableModifiableModel
+            val libraries = ModifiableModelsProvider.getInstance().libraryTableModifiableModel
 
             var library = libraries.getLibraryByName(GHIDRA_LIBRARY_NAME)
             if (library == null) {
