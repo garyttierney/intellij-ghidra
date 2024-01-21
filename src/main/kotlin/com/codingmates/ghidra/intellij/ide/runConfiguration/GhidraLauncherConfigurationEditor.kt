@@ -6,9 +6,8 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.ui.PanelWithAnchor
 import com.intellij.ui.components.fields.ExpandableTextField
-import com.intellij.ui.layout.CCFlags
-import com.intellij.ui.layout.LCFlags
-import com.intellij.ui.layout.panel
+import com.intellij.ui.dsl.builder.AlignX
+import com.intellij.ui.dsl.builder.panel
 import org.jetbrains.annotations.Nullable
 import javax.swing.JCheckBox
 import javax.swing.JComponent
@@ -23,15 +22,15 @@ class GhidraLauncherConfigurationEditor(project: Project) : SettingsEditor<Ghidr
     private val argEditor = ExpandableTextField()
     private val isHeadless = JCheckBox()
 
-    private val configPanel = panel(LCFlags.fillX) {
+    private val configPanel = panel {
         row {
-            jreEditor(CCFlags.growX)
+            cell(jreEditor).align(AlignX.FILL)
         }
         row("Arguments") {
-            argEditor(CCFlags.growX)
+            cell(argEditor).align(AlignX.FILL)
         }
         row("Use headless") {
-            isHeadless(CCFlags.growX)
+            cell(isHeadless).align(AlignX.FILL)
         }
     }
 
