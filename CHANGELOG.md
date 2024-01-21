@@ -2,18 +2,20 @@
 
 # IntelliJ Ghidra Changelog
 
-## [Unreleased]
-### Added
+## Unreleased
 
+## 0.4.1 - 2022-12-07
+
+### Added
 - Add support for IntelliJ 2022.2 by [agatti](https://github.com/agatti) and [ekilmer](https://github.com/ekilmer) in https://github.com/garyttierney/intellij-ghidra/pull/17.
 
 ### Fixed
 - Fix headless checkbox not showing up by [ekilmer](https://github.com/ekilmer) in https://github.com/garyttierney/intellij-ghidra/pull/19
 
-## [0.3.0]
-### Changed
+## 0.3.0
 
-## [0.2.0]
+## 0.2.0
+
 ### Added
 - Add basic support for Headless mode. by [MatthewShao](https://github.com/MatthewShao) in https://github.com/garyttierney/intellij-ghidra/pull/1
 - Add build instructions and update IDEA version by [XVilka](https://github.com/XVilka) in https://github.com/garyttierney/intellij-ghidra/pull/3
