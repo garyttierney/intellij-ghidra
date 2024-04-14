@@ -1,70 +1,141 @@
 package com.codingmates.ghidra.intellij.ide.facet
 
-import com.intellij.facet.ui.FacetEditorContext
-import com.intellij.facet.ui.FacetEditorTab
-import com.intellij.facet.ui.FacetValidatorsManager
-import com.intellij.openapi.fileChooser.FileChooser
+import com.codingmates.ghidra.intellij.ide.GhidraBundle
+import com.codingmates.ghidra.intellij.ide.facet.model.isGhidraInstallationPath
+import com.codingmates.ghidra.intellij.ide.facet.model.isGhidraSourcesPath
+import com.intellij.facet.ui.*
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.observable.properties.PropertyGraph
+import com.intellij.openapi.observable.util.toUiPathProperty
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.ui.BrowseFolderDescriptor.Companion.withPathToTextConvertor
+import com.intellij.openapi.ui.BrowseFolderDescriptor.Companion.withTextToPathConvertor
+import com.intellij.openapi.ui.getCanonicalPath
+import com.intellij.openapi.ui.getPresentablePath
+import com.intellij.openapi.ui.setEmptyState
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.ui.dsl.builder.AlignX
+import com.intellij.ui.dsl.builder.bindText
+import com.intellij.ui.dsl.builder.panel
 import org.jetbrains.annotations.Nls
-import java.awt.BorderLayout
-import javax.swing.*
-
+import java.nio.file.Path
+import java.nio.file.Paths
 
 class GhidraFacetConfigurationEditor(
-    private val state: GhidraFacetState,
+    private val state: GhidraFacetSettings,
     private val context: FacetEditorContext,
-    private val _validator: FacetValidatorsManager
+    private val validator: FacetValidatorsManager
 ) : FacetEditorTab() {
 
-    private val installationPathEditor = JTextField(state.installationPath)
+    private val propertyGraph = PropertyGraph()
+    private val installationDir = propertyGraph.property(state.installationPath)
+    private val settingsDir = propertyGraph.property(state.settingsPath?.toString() ?: "")
+    private val version = propertyGraph.property(state.version ?: "")
+    private val applied = propertyGraph.property(false)
 
-    override fun createComponent(): JComponent {
-        val top = JPanel(BorderLayout())
-        top.add(JLabel("Path to Ghidra installation: "), BorderLayout.WEST)
-        top.add(installationPathEditor)
-        val chooserButton = JButton("...")
-        top.add(chooserButton, BorderLayout.EAST)
-        val facetPanel = JPanel(BorderLayout())
-        facetPanel.add(top, BorderLayout.NORTH)
-        chooserButton.addActionListener {
-            FileChooser.chooseFile(
-                FileChooserDescriptorFactory.createSingleFolderDescriptor(),
-                context.project, null
-            ) { virtualFile ->
-                virtualFile.canonicalPath?.let { path ->
-                    installationPathEditor.text = path
-                }
+    init {
+        validator.registerValidator(GhidraInstallationValidator())
+        propertyGraph.afterPropagation { validator.validate() }
+    }
+
+    override fun createComponent() = panel {
+        group("Ghidra Settings") {
+            row(GhidraBundle.message("ghidra.facet.editor.installation")) {
+                val title = GhidraBundle.message("ghidra.facet.editor.installation.dialog.title")
+                val fileChooserDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor()
+                    .withPathToTextConvertor(::getPresentablePath).withTextToPathConvertor(::getCanonicalPath)
+
+                textFieldWithBrowseButton(title, context.project, fileChooserDescriptor)
+                    .bindText(installationDir.toUiPathProperty())
+                    .applyToComponent { setEmptyState(GhidraBundle.message("ghidra.facet.editor.installation.empty")) }
+                    .align(AlignX.FILL)
             }
         }
-        return facetPanel
+
+        group("Ghidra Installation Details") {
+            row("Version") {
+                textField()
+                    .bindText(version)
+                    .enabled(false)
+                    .align(AlignX.FILL)
+            }
+
+            row("Settings") {
+                textField()
+                    .bindText(settingsDir)
+                    .enabled(false)
+                    .align(AlignX.FILL)
+
+            }
+        }.visibleIf(applied)
     }
 
-    /**
-     * @return the name of this facet for display in this editor tab.
-     */
-    @Nls(capitalization = Nls.Capitalization.Title)
-    override fun getDisplayName(): String {
-        return GhidraFacetType.FACET_NAME
-    }
+    inner class GhidraInstallationValidator : FacetEditorValidator(), SlowFacetEditorValidator {
+        override fun check(): ValidationResult {
+            val ghidraInstallation = installationDir.get()
 
+            if (!isGhidraInstallationPath(ghidraInstallation)) {
+                return ValidationResult(GhidraBundle.message("ghidra.facet.editor.installation.error.no-properties"))
+            }
 
-    override fun isModified(): Boolean {
-        return !StringUtil.equals(state.installationPath, installationPathEditor.text.trim())
-    }
+            if (isGhidraSourcesPath(ghidraInstallation)) {
+                return ValidationResult(GhidraBundle.message("ghidra.facet.editor.installation.error.sources"))
+            }
 
-    override fun apply() {
-        // Not much to go wrong here, but fulfill the contract
-        try {
-            val newTextContent: String = installationPathEditor.text
-            state.installationPath = newTextContent
-        } catch (e: Exception) {
-            throw ConfigurationException(e.toString())
+            return ValidationResult.OK
         }
     }
 
-    override fun reset() {
-        installationPathEditor.text = state.installationPath
+    @Nls(capitalization = Nls.Capitalization.Title)
+    override fun getDisplayName() = GhidraFacetType.FACET_NAME
+
+    override fun isModified() = state.installationPath != installationDir.get()
+
+    @Throws(ConfigurationException::class)
+    override fun apply() {
+        try {
+            state.installationPath = installationDir.get()
+            state.resolve()
+
+            settingsDir.set(state.settingsPath.toString())
+            version.set(state.version!!)
+            applied.set(true)
+
+            runWriteAction {
+                val rootManager = ModuleRootManager.getInstance(context.module)
+                val vfs = VirtualFileManager.getInstance()
+
+                fun vfsPathForRoots(path: Path): VirtualFile? {
+                    val url = VfsUtil.getUrlForLibraryRoot(path)
+                    val file = vfs.refreshAndFindFileByUrl(url)
+
+                    return file
+                }
+
+                val libraryRoots = state.modules
+                    ?.map { Paths.get(it.value, "lib", "${it.key}.jar") }
+                    ?.mapNotNull(::vfsPathForRoots) ?: emptyList()
+
+                val sourceRoots = state.modules
+                    ?.map { Paths.get(it.value, "lib", "${it.key}-src.zip") }
+                    ?.mapNotNull(::vfsPathForRoots) ?: emptyList()
+
+                val library = context.createProjectLibrary(
+                    "Ghidra",
+                    libraryRoots.toTypedArray(),
+                    sourceRoots.toTypedArray()
+                )
+
+                val model = rootManager.modifiableModel
+                model.addLibraryEntry(library)
+                model.commit()
+            }
+        } catch (e: ConfigurationException) {
+            throw ConfigurationException(e.localizedMessage)
+        }
     }
 }
