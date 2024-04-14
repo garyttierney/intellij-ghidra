@@ -1,8 +1,10 @@
 package com.codingmates.ghidra.intellij.ide.facet
 
 
-import com.intellij.ProjectTopics
+import com.codingmates.ghidra.intellij.ide.facet.model.GhidraProperties
 import com.intellij.facet.*
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.Module
@@ -10,6 +12,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.*
 import com.intellij.util.messages.MessageBusConnection
+import java.nio.file.Paths
 
 
 class GhidraFacet(
@@ -21,6 +24,7 @@ class GhidraFacet(
 ) : Facet<GhidraFacetConfiguration>(facetType, module, name, configuration, underlyingFacet) {
     private val connection: MessageBusConnection = module.project.messageBus.connect()
 
+    var installationProperties: GhidraProperties? = null
     val installationPath
         get() = configuration.ghidraState.installationPath
 
@@ -30,27 +34,12 @@ class GhidraFacet(
                 removeLibrary()
             }
 
-            override fun beforeFacetAdded(facet: Facet<*>) {
-            }
-
-            override fun beforeFacetRenamed(facet: Facet<*>) {
-            }
-
-            override fun facetAdded(facet: Facet<*>) {
-            }
-
-            override fun facetRemoved(facet: Facet<*>) {
-            }
-
-            override fun facetRenamed(facet: Facet<*>, oldName: String) {
-            }
-
             override fun facetConfigurationChanged(facet: Facet<*>) {
                 updateLibrary()
             }
         })
 
-        connection.subscribe(ProjectTopics.PROJECT_ROOTS, object : ModuleRootListener {
+        connection.subscribe(ModuleRootListener.TOPIC, object : ModuleRootListener {
             override fun rootsChanged(event: ModuleRootEvent) {
                 invokeLater { updateLibrary() }
             }
@@ -58,7 +47,16 @@ class GhidraFacet(
     }
 
     override fun initFacet() {
-        invokeLater { updateLibrary() }
+        invokeLater {
+            try {
+                installationProperties = GhidraProperties.discoverFromRuntime(Paths.get(installationPath))
+            } catch (e: Exception) {
+                NotificationGroupManager.getInstance()
+                    .getNotificationGroup("IDE-errors")
+                    .createNotification(e.message.toString(), NotificationType.ERROR)
+                    .notify(module.project)
+            }
+        }
     }
 
     fun removeLibrary() = runWriteAction {
@@ -88,7 +86,6 @@ class GhidraFacet(
         val model = rootManager.modifiableModel
 
         try {
-            val installation = configuration.loadGhidraInstallation()
             val libraries = ModifiableModelsProvider.getInstance().libraryTableModifiableModel
 
             var library = libraries.getLibraryByName(GHIDRA_LIBRARY_NAME)
@@ -96,8 +93,6 @@ class GhidraFacet(
                 library = libraries.createLibrary(GHIDRA_LIBRARY_NAME)
 
                 val libraryModel = library.modifiableModel
-                installation.binaries.forEach { libraryModel.addRoot(it, OrderRootType.CLASSES) }
-                installation.sources.forEach { libraryModel.addRoot(it, OrderRootType.SOURCES) }
 
                 libraryModel.commit()
                 libraries.commit()
@@ -118,6 +113,8 @@ class GhidraFacet(
             if (!hasLibrary) {
                 model.addLibraryEntry(library)
             }
+        } catch (err: Exception) {
+            // TODO: log this
         } finally {
             if (model.isChanged) {
                 model.commit()
@@ -131,8 +128,6 @@ class GhidraFacet(
         const val GHIDRA_LIBRARY_NAME = "Ghidra"
 
         fun findAnyInProject(project: Project) = ModuleManager.getInstance(project)
-            .modules
-            .mapNotNull { FacetManager.getInstance(it).getFacetByType(GhidraFacetType.FACET_TYPE_ID) }
-            .first()
+            .modules.firstNotNullOf { FacetManager.getInstance(it).getFacetByType(FACET_TYPE_ID) }
     }
 }
