@@ -4,19 +4,26 @@ import com.codingmates.ghidra.intellij.ide.GhidraBundle
 import com.codingmates.ghidra.intellij.ide.facet.model.isGhidraInstallationPath
 import com.codingmates.ghidra.intellij.ide.facet.model.isGhidraSourcesPath
 import com.intellij.facet.ui.*
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.observable.util.toUiPathProperty
 import com.intellij.openapi.options.ConfigurationException
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.ui.BrowseFolderDescriptor.Companion.withPathToTextConvertor
 import com.intellij.openapi.ui.BrowseFolderDescriptor.Companion.withTextToPathConvertor
 import com.intellij.openapi.ui.getCanonicalPath
 import com.intellij.openapi.ui.getPresentablePath
 import com.intellij.openapi.ui.setEmptyState
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.bindText
 import com.intellij.ui.dsl.builder.panel
 import org.jetbrains.annotations.Nls
+import java.nio.file.Path
+import java.nio.file.Paths
 
 class GhidraFacetConfigurationEditor(
     private val state: GhidraFacetSettings,
@@ -97,6 +104,36 @@ class GhidraFacetConfigurationEditor(
             settingsDir.set(state.settingsPath.toString())
             version.set(state.version!!)
             applied.set(true)
+
+            runWriteAction {
+                val rootManager = ModuleRootManager.getInstance(context.module)
+                val vfs = VirtualFileManager.getInstance()
+
+                fun vfsPathForRoots(path: Path): VirtualFile? {
+                    val url = VfsUtil.getUrlForLibraryRoot(path)
+                    val file = vfs.refreshAndFindFileByUrl(url)
+
+                    return file
+                }
+
+                val libraryRoots = state.modules
+                    ?.map { Paths.get(it.value, "lib", "${it.key}.jar") }
+                    ?.mapNotNull(::vfsPathForRoots) ?: emptyList()
+
+                val sourceRoots = state.modules
+                    ?.map { Paths.get(it.value, "lib", "${it.key}-src.zip") }
+                    ?.mapNotNull(::vfsPathForRoots) ?: emptyList()
+
+                val library = context.createProjectLibrary(
+                    "Ghidra",
+                    libraryRoots.toTypedArray(),
+                    sourceRoots.toTypedArray()
+                )
+
+                val model = rootManager.modifiableModel
+                model.addLibraryEntry(library)
+                model.commit()
+            }
         } catch (e: ConfigurationException) {
             throw ConfigurationException(e.localizedMessage)
         }
