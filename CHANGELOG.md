@@ -3,6 +3,29 @@
 # IntelliJ Ghidra Changelog
 
 ## [Unreleased]
+
+## [0.5.0]
+### Added
+
+* Support for IntelliJ 2024.
+* Discover Ghidra paths using `Utility.jar`
+* Add validation to facet UI
+
+## [0.4.2]
+### Added
+
+* Expandable text field for arguments by @ekilmer in https://github.com/garyttierney/intellij-ghidra/pull/28
+* Support for IntelliJ 2023 by @mrexodia in https://github.com/garyttierney/intellij-ghidra/pull/32
+
+### Changed
+
+- Updated JetBrains vendor status.
+
+## [0.4.1]
+### Added
+- Add support for IntelliJ 2022.3 by [LukBukkit](https://github.com/LukBukkit) in https://github.com/garyttierney/intellij-ghidra/pull/26.
+
+## [0.4.0]
 ### Added
 
 - Add support for IntelliJ 2022.2 by [agatti](https://github.com/agatti) and [ekilmer](https://github.com/ekilmer) in https://github.com/garyttierney/intellij-ghidra/pull/17.
