@@ -1,7 +1,7 @@
 package com.codingmates.ghidra.intellij.ide.facet
 
-import com.codingmates.ghidra.intellij.ide.facet.model.createApplicationLayoutProxy
-import com.codingmates.ghidra.intellij.ide.facet.model.resolveGhidraModuleJar
+import com.codingmates.ghidra.intellij.ide.model.createApplicationLayoutProxy
+import com.codingmates.ghidra.intellij.ide.model.resolveGhidraModuleJar
 import com.intellij.util.lang.UrlClassLoader
 import java.io.File
 import java.nio.file.Paths

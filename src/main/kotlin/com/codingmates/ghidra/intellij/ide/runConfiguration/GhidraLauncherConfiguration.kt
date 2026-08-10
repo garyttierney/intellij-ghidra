@@ -1,6 +1,9 @@
 package com.codingmates.ghidra.intellij.ide.runConfiguration
 
 import com.codingmates.ghidra.intellij.ide.facet.GhidraFacet
+import com.codingmates.ghidra.intellij.ide.model.GhidraPathValidationException
+import com.codingmates.ghidra.intellij.ide.model.validateGhidraPath
+import com.codingmates.ghidra.intellij.ide.settings.GhidraSettings
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution.*
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
@@ -30,10 +33,23 @@ class GhidraLauncherConfiguration(
     SearchScopeProvidingRunProfile,
     RunProfileWithCompileBeforeLaunchOption {
 
+    private val _envs: MutableMap<String, String> = LinkedHashMap()
+    private var backingRunConfigurationModule: JavaRunConfigurationModule = JavaRunConfigurationModule(project, true)
+    private var state = GhidraLauncherConfigurationBean()
+
+    init {
+        state.vmParameters = "-Xmx2560m"
+    }
+
     override fun checkConfiguration() {
         JavaParametersUtil.checkAlternativeJRE(this)
         ProgramParametersUtil.checkWorkingDirectoryExist(this, project, null)
         JavaRunConfigurationExtensionManager.checkConfigurationIsValid(this)
+        try {
+            validateGhidraPath(GhidraSettings.getInstance(project).path)
+        } catch (e: GhidraPathValidationException) {
+            throw RuntimeConfigurationError(e.message)
+        }
     }
 
     override fun clone(): RunConfiguration {
@@ -128,7 +144,7 @@ class GhidraLauncherConfiguration(
         state.alternativeJrePathEnabled = enabled
     }
 
-    fun setArgs(args: String?){
+    fun setArgs(args: String?) {
         state.args = args
     }
 
@@ -136,7 +152,7 @@ class GhidraLauncherConfiguration(
         state.isHeadless = check
     }
 
-    fun getArgs(): String?{
+    fun getArgs(): String? {
         return state.args
     }
 
@@ -152,8 +168,8 @@ class GhidraLauncherConfiguration(
     override fun setPassParentEnvs(passParentEnvs: Boolean) {
         state.passParentEnvironments = passParentEnvs
     }
-
     override fun setProgramParameters(value: String?) {}
+
     override fun setVMParameters(value: String?) {
         state.vmParameters = value ?: ""
     }
@@ -175,25 +191,6 @@ class GhidraLauncherConfiguration(
         }
     }
 
-    private val _envs: MutableMap<String, String> = LinkedHashMap()
-    private var backingRunConfigurationModule: JavaRunConfigurationModule = JavaRunConfigurationModule(project, true)
-    private var state = GhidraLauncherConfigurationBean()
-
-    private data class GhidraLauncherConfigurationBean(
-        var alternativeJrePath: String? = "",
-        var alternativeJrePathEnabled: Boolean = true,
-        var passParentEnvironments: Boolean = true,
-        var shortenCommandLine: ShortenCommandLine? = null,
-        var vmParameters: String = "",
-        var args: String? = "",
-        var isHeadless: Boolean = false,
-        var workingDirectory: String? = null,
-    )
-
-    init {
-        state.vmParameters = "-Xmx2560m"
-    }
-
     override fun getShortenCommandLine(): ShortenCommandLine? {
         return state.shortenCommandLine
     }
@@ -201,4 +198,15 @@ class GhidraLauncherConfiguration(
     override fun setShortenCommandLine(mode: ShortenCommandLine?) {
         state.shortenCommandLine = mode
     }
+
+    private data class GhidraLauncherConfigurationBean(
+        var alternativeJrePath: String? = "",
+        var alternativeJrePathEnabled: Boolean = false,
+        var passParentEnvironments: Boolean = true,
+        var shortenCommandLine: ShortenCommandLine? = null,
+        var vmParameters: String = "",
+        var args: String? = "",
+        var isHeadless: Boolean = false,
+        var workingDirectory: String? = null,
+    )
 }

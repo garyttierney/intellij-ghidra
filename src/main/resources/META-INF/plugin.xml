@@ -7,12 +7,21 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.gradle</depends>
+    <depends>com.intellij.properties</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="com.codingmates.ghidra.intellij.ide.runConfiguration.GhidraLauncherConfigurationType"/>
         <programRunner id="Run" implementation="com.codingmates.ghidra.intellij.ide.runConfiguration.GhidraLauncherRunner"/>
         <programRunner id="Debug" implementation="com.codingmates.ghidra.intellij.ide.runConfiguration.GhidraLauncherDebugRunner"/>
         <facetType implementation="com.codingmates.ghidra.intellij.ide.facet.GhidraFacetType" />
+        <moduleBuilder builderClass="com.codingmates.ghidra.intellij.ide.newProjectWizard.GhidraNewProjectWizard$Builder" />
+        <projectConfigurable
+                parentId="tools"
+                instance="com.codingmates.ghidra.intellij.ide.settings.GhidraSettingsConfigurable"
+                id="com.codingmates.ghidra.intellij.ide.settings.GhidraSettingsConfigurable"
+                displayName="Ghidra Settings"
+                nonDefaultProject="true"/>
     </extensions>
 
     <actions>

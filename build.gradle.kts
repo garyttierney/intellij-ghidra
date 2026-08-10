@@ -76,6 +76,12 @@ intellijPlatform {
         }
     }
 
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
+
     publishing {
         token = environment("PUBLISH_TOKEN")
         // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
@@ -106,10 +112,12 @@ qodana {
 }
 
 // Configure Gradle Kover Plugin - read more: https://github.com/Kotlin/kotlinx-kover#configuration
-koverReport {
-    defaults {
-        xml {
-            onCheck = true
+kover {
+    reports {
+        total {
+            xml {
+                onCheck = true
+            }
         }
     }
 }

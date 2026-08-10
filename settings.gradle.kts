@@ -4,4 +4,4 @@ plugins {
 
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
-rootProject.name = "intellij-ghidra"
+rootProject.name = "GhidraDev"

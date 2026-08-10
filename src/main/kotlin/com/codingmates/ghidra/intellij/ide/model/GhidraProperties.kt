@@ -1,9 +1,13 @@
-package com.codingmates.ghidra.intellij.ide.facet.model
+package com.codingmates.ghidra.intellij.ide.model
 
+import com.codingmates.ghidra.intellij.ide.GhidraBundle
 import com.intellij.util.lang.UrlClassLoader
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
+import kotlin.io.path.listDirectoryEntries
 
 fun Path.resolveGhidraModuleJar(category: String, name: String): Path {
     return resolve("Ghidra/${category}/${name}/lib/${name}.jar")
@@ -39,6 +43,30 @@ data class GhidraProperties(
     }
 }
 
-fun isGhidraSourcesPath(path: String) = Files.exists(Path.of(path, "Ghidra", "certification.local.manifest"))
+fun validateGhidraPath(path: String) {
+    val path = Paths.get(path)
+    if (!path.resolve("Ghidra/application.properties").exists()) {
+        throw GhidraPathValidationException(GhidraBundle.message("ghidra.editor.path.error.no-properties"))
+    }
+    if (path.resolve("Ghidra/certification.local.manifest").exists()) {
+        throw GhidraPathValidationException(GhidraBundle.message("ghidra.editor.path.error.sources"))
+    }
 
-fun isGhidraInstallationPath(path: String) = Files.exists(Path.of(path, "Ghidra", "application.properties"))
+    if (!path.resolve("Ghidra/Framework/Utility/lib/Utility.jar").exists()) {
+        throw GhidraPathValidationException(GhidraBundle.message("ghidra.editor.path.error.utility"))
+    }
+
+    val genericLib = path.resolve("Ghidra/Framework/Generic/lib")
+    if (!genericLib.isDirectory()) {
+        throw GhidraPathValidationException(GhidraBundle.message("ghidra.editor.path.error.generic-lib"))
+    }
+
+    val log4jRegex = Regex(GhidraBundle.message("ghidra.regex.log4j"))
+    val hasLog4j = genericLib.listDirectoryEntries()
+        .any { it.isRegularFile() && log4jRegex.matches(it.fileName.toString()) }
+    if (!hasLog4j) {
+        throw GhidraPathValidationException(GhidraBundle.message("ghidra.editor.path.error.log4j"))
+    }
+}
+
+class GhidraPathValidationException(message: String) : Exception(message)

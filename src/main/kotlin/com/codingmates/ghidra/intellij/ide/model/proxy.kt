@@ -1,4 +1,4 @@
-package com.codingmates.ghidra.intellij.ide.facet.model
+package com.codingmates.ghidra.intellij.ide.model
 
 import java.io.File
 
